@@ -8,7 +8,7 @@
   "documentationLink": "https://github.com/Mclass294/Hubitat-Daikin-BRP084/blob/main/README.md",
   "licenseFile": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/LICENSE",
   "apps": [],
-  "drivers": [
+    "drivers": [
     {
       "id": "mclass.daikin.brp084.parent",
       "name": "Daikin BRP084 Parent",
@@ -21,6 +21,13 @@
       "name": "Daikin BRP084 Temperature Child",
       "namespace": "mclass",
       "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084TemperatureChild.groovy",
+      "required": true
+    },
+    {
+      "id": "mclass.daikin.brp084.humidity",
+      "name": "Daikin BRP084 Humidity Child",
+      "namespace": "mclass",
+      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084HumidityChild.groovy",
       "required": true
     }
   ]
