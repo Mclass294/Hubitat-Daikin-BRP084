@@ -1,9 +1,6 @@
 /*
  * Copyright 2026 Neil McLaren
  *
- * Licensed under the Apache License, Version 2.0
- */
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +14,7 @@
  * limitations under the License.
  *
  * Version history:
+ * 0.4.0 - Add native DSIoT power on/off write support.
  * 0.3.1 - Rename driver and replace Hubitat-incompatible chained map indexing.
  * 0.3.0 - Add Hubitat Thermostat capability using read-only parsed status attributes.
  * 0.2.0 - Flatten protocol helper class into Hubitat driver methods.
@@ -52,6 +50,8 @@ metadata {
         attribute "runtimeToday", "number"
         attribute "supportedFanModes", "string"
         attribute "supportedSwingModes", "string"
+
+        command "on"
     }
 
     preferences {
@@ -287,8 +287,12 @@ void heat() {
     rejectReadOnlyThermostatCommand("heat")
 }
 
+void on() {
+    setPowerState(true)
+}
+
 void off() {
-    rejectReadOnlyThermostatCommand("off")
+    setPowerState(false)
 }
 
 void setCoolingSetpoint(BigDecimal degrees) {
@@ -313,6 +317,14 @@ void setThermostatMode(String mode) {
 
 void rejectReadOnlyThermostatCommand(String commandName) {
     logWarn "Thermostat command ${commandName} ignored because this driver version is read-only"
+}
+
+void setPowerState(Boolean enabled) {
+    String value = enabled ? "01" : "00"
+    Boolean success = sendWriteRequest(indoorStatusPath(), ["e_1002", "e_A002"], "p_01", value)
+    if (success) {
+        refresh()
+    }
 }
 
 void disableDebugLogging() {
@@ -341,7 +353,7 @@ void logTrace(String message) {
 }
 
 String driverVersion() {
-    return "0.3.1"
+    return "0.4.0"
 }
 
 String indoorStatusPath() {
@@ -459,6 +471,101 @@ Map buildStatusRequest() {
             [op: 2, to: "${weekPowerPath()}?filter=pv,pt,md"]
         ]
     ]
+}
+
+Map buildWriteRequest(String target, List path, String parameter, String value) {
+    Map payload = [
+        requests: [
+            [
+                op: 3,
+                pc: [
+                    pn: "dgc_status",
+                    pch: []
+                ],
+                to: target
+            ]
+        ]
+    ]
+
+    List children = payload.get("requests").get(0).get("pc").get("pch")
+    path.each { pathElement ->
+        Map child = [
+            pn: pathElement,
+            pch: []
+        ]
+        children << child
+        children = child.get("pch")
+    }
+    children << [
+        pn: parameter,
+        pv: value
+    ]
+
+    return payload
+}
+
+Boolean sendWriteRequest(String target, List path, String parameter, String value) {
+    if (!ipAddress) {
+        logWarn "Write skipped because IP address is not configured"
+        sendEvent(name: "availability", value: "configurationPending")
+        return false
+    }
+
+    Map requestBody = buildWriteRequest(target, path, parameter, value)
+    Map params = [
+        uri: "http://${ipAddress}/dsiot/multireq",
+        contentType: "application/json",
+        requestContentType: "application/json",
+        body: JsonOutput.toJson(requestBody),
+        timeout: safeTimeout()
+    ]
+
+    logDebug "Sending Daikin BRP084 write to ${ipAddress}: target=${target}, parameter=${parameter}, value=${value}"
+    logDebug "Write request JSON: ${JsonOutput.toJson(requestBody)}"
+    logTrace "Write request pretty JSON: ${JsonOutput.prettyPrint(JsonOutput.toJson(requestBody))}"
+
+    try {
+        Boolean success = false
+        httpPut(params) { response ->
+            Integer status = response?.status as Integer
+            sendEventIfChanged("lastResponseCode", status)
+            logDebug "Write HTTP status: ${status}"
+            logDebug "Write response JSON: ${JsonOutput.toJson(response.data)}"
+            logTrace "Write response pretty JSON: ${JsonOutput.prettyPrint(JsonOutput.toJson(response.data))}"
+
+            if (status != 200) {
+                logWarn "Daikin BRP084 write failed: HTTP ${status}"
+                success = false
+                return
+            }
+
+            Integer returnCode = dsiotReturnCode(response.data)
+            logDebug "Write DSIoT return code: ${returnCode}"
+            if (returnCode == 2004) {
+                success = true
+            } else {
+                logWarn "Daikin BRP084 write rejected: rsc=${returnCode}"
+                success = false
+            }
+        }
+        return success
+    } catch (Exception e) {
+        logWarn "Daikin BRP084 write failed: ${e.message ?: e.toString()}"
+        return false
+    }
+}
+
+Integer dsiotReturnCode(Object responseData) {
+    Map data = responseData as Map
+    Object responses = data?.responses
+    if (!(responses instanceof List) || responses.size() == 0) {
+        return null
+    }
+    Object firstResponse = responses.get(0)
+    if (!(firstResponse instanceof Map)) {
+        return null
+    }
+    return firstResponse.get("rsc") as Integer
 }
 
 Map parseStatusResponse(Object responseData) {
