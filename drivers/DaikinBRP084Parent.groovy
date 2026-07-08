@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  * Version history:
+ * 0.6.0 - Add native DSIoT thermostat fan mode write support.
  * 0.5.1 - Add Switch capability and power on before HVAC mode writes while off.
  * 0.5.0 - Add native DSIoT thermostat mode and heat/cool setpoint write support.
  * 0.4.0 - Add native DSIoT power on/off write support.
@@ -55,6 +56,13 @@ metadata {
         attribute "supportedSwingModes", "string"
 
         command "on"
+        command "setDaikinFanMode", [
+            [
+                name: "Fan Mode",
+                type: "ENUM",
+                constraints: ["Auto", "Quiet", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5"]
+            ]
+        ]
     }
 
     preferences {
@@ -91,6 +99,7 @@ metadata {
 
 void installed() {
     logInfo "Installed"
+    initializeLastManualFanMode()
     sendStaticAttributes()
     initialize()
 }
@@ -98,6 +107,7 @@ void installed() {
 void updated() {
     logInfo "Updated"
     unschedule()
+    initializeLastManualFanMode()
     if (enableDebugLogging) {
         runIn(1800, "disableDebugLogging")
     }
@@ -275,7 +285,7 @@ void emergencyHeat() {
 }
 
 void fanAuto() {
-    rejectReadOnlyThermostatCommand("fanAuto")
+    setThermostatFanMode("auto")
 }
 
 void fanCirculate() {
@@ -283,7 +293,10 @@ void fanCirculate() {
 }
 
 void fanOn() {
-    rejectReadOnlyThermostatCommand("fanOn")
+    // Hubitat Thermostat capability only defines Auto and On.
+    // On restores the previously selected manual Daikin fan speed,
+    // defaulting to Level 3 if no previous manual speed exists.
+    setThermostatFanMode(state.lastManualFanMode ?: "level3")
 }
 
 void heat() {
@@ -311,7 +324,41 @@ void setSchedule(String scheduleJson) {
 }
 
 void setThermostatFanMode(String mode) {
-    rejectReadOnlyThermostatCommand("setThermostatFanMode(${mode})")
+    if (!mode) {
+        logWarn "Thermostat fan mode write ignored because mode is blank"
+        return
+    }
+
+    String hvacMode = device.currentValue("daikinMode") as String
+    if (hvacMode == "dry") {
+        logWarn "Fan speed cannot be changed while HVAC mode is Dry."
+        return
+    }
+
+    String parameter = fanSpeedAttrByMode().get(hvacMode)
+    if (!parameter) {
+        logWarn "Fan speed cannot be changed while HVAC mode is ${hvacMode ?: "unknown"}."
+        return
+    }
+
+    String fanMode = normalizeThermostatFanMode(mode)
+    String value = thermostatFanModeWriteValue(fanMode)
+    if (!value) {
+        logWarn "Unsupported thermostat fan mode write requested: ${mode}"
+        return
+    }
+
+    Boolean success = sendWriteRequest(indoorStatusPath(), ["e_1002", "e_3001"], parameter, value)
+    if (success) {
+        if (fanMode != "auto") {
+            state.lastManualFanMode = fanMode
+        }
+        refresh()
+    }
+}
+
+void setDaikinFanMode(String mode) {
+    setThermostatFanMode(mode)
 }
 
 void setThermostatMode(String mode) {
@@ -361,6 +408,12 @@ void setPowerState(Boolean enabled) {
     }
 }
 
+void initializeLastManualFanMode() {
+    if (!state.lastManualFanMode) {
+        state.lastManualFanMode = "level3"
+    }
+}
+
 void disableDebugLogging() {
     device.updateSetting("enableDebugLogging", [value: "false", type: "bool"])
     logInfo "Debug logging disabled"
@@ -387,7 +440,7 @@ void logTrace(String message) {
 }
 
 String driverVersion() {
-    return "0.5.1"
+    return "0.6.0"
 }
 
 String indoorStatusPath() {
@@ -419,7 +472,7 @@ List supportedSwingModes() {
 }
 
 String thermostatFanModeFromDaikinFanMode(String fanMode) {
-    return fanMode == "Auto" ? "auto" : "on"
+    return daikinFanModeToThermostatFanMode().get(fanMode) ?: "auto"
 }
 
 String thermostatModeFromDaikinMode(String daikinMode) {
@@ -469,8 +522,58 @@ Map thermostatModeWriteValues() {
     ]
 }
 
+Map thermostatFanModeWriteValues() {
+    return [
+        "auto": "0A00",
+        "quiet": "0B00",
+        "level1": "0300",
+        "level2": "0400",
+        "level3": "0500",
+        "level4": "0600",
+        "level5": "0700"
+    ]
+}
+
+Map thermostatFanModeAliases() {
+    return [
+        "auto": "auto",
+        "on": "level3",
+        "quiet": "quiet",
+        "level 1": "level1",
+        "level1": "level1",
+        "level 2": "level2",
+        "level2": "level2",
+        "level 3": "level3",
+        "level3": "level3",
+        "level 4": "level4",
+        "level4": "level4",
+        "level 5": "level5",
+        "level5": "level5"
+    ]
+}
+
+Map daikinFanModeToThermostatFanMode() {
+    return [
+        "Auto": "auto",
+        "Quiet": "quiet",
+        "Level 1": "level1",
+        "Level 2": "level2",
+        "Level 3": "level3",
+        "Level 4": "level4",
+        "Level 5": "level5"
+    ]
+}
+
 String thermostatModeWriteValue(String mode) {
     return thermostatModeWriteValues().get(mode)
+}
+
+String normalizeThermostatFanMode(String mode) {
+    return thermostatFanModeAliases().get(mode.toString().toLowerCase())
+}
+
+String thermostatFanModeWriteValue(String mode) {
+    return thermostatFanModeWriteValues().get(mode)
 }
 
 void setTemperatureSetpoint(String parameter, BigDecimal degrees) {
