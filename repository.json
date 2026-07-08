@@ -1,0 +1,18 @@
+{
+  "author": "Neil McLaren",
+  "gitHubUrl": "https://github.com/Mclass294/Hubitat-Daikin-BRP084",
+  "packages": [
+    {
+      "name": "Daikin BRP084 Local Controller",
+      "category": "Integrations",
+      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/packageManifest.json",
+      "description": "Local Hubitat integration for Daikin BRP084 DSIoT adapters.",
+      "tags": [
+        "Daikin",
+        "HVAC",
+        "Thermostat",
+        "Local"
+      ]
+    }
+  ]
+}
