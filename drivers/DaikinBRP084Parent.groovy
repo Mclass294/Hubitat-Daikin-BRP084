@@ -14,6 +14,8 @@
  * limitations under the License.
  *
  * Version history:
+ * 0.5.1 - Add Switch capability and power on before HVAC mode writes while off.
+ * 0.5.0 - Add native DSIoT thermostat mode and heat/cool setpoint write support.
  * 0.4.0 - Add native DSIoT power on/off write support.
  * 0.3.1 - Rename driver and replace Hubitat-incompatible chained map indexing.
  * 0.3.0 - Add Hubitat Thermostat capability using read-only parsed status attributes.
@@ -33,6 +35,7 @@ metadata {
         capability "Initialize"
         capability "Refresh"
         capability "Sensor"
+        capability "Switch"
         capability "Thermostat"
         capability "TemperatureMeasurement"
         capability "RelativeHumidityMeasurement"
@@ -260,11 +263,11 @@ String formatPowerState(Object value) {
 }
 
 void auto() {
-    rejectReadOnlyThermostatCommand("auto")
+    setThermostatMode("auto")
 }
 
 void cool() {
-    rejectReadOnlyThermostatCommand("cool")
+    setThermostatMode("cool")
 }
 
 void emergencyHeat() {
@@ -284,7 +287,7 @@ void fanOn() {
 }
 
 void heat() {
-    rejectReadOnlyThermostatCommand("heat")
+    setThermostatMode("heat")
 }
 
 void on() {
@@ -296,11 +299,11 @@ void off() {
 }
 
 void setCoolingSetpoint(BigDecimal degrees) {
-    rejectReadOnlyThermostatCommand("setCoolingSetpoint(${degrees})")
+    setTemperatureSetpoint("p_02", degrees)
 }
 
 void setHeatingSetpoint(BigDecimal degrees) {
-    rejectReadOnlyThermostatCommand("setHeatingSetpoint(${degrees})")
+    setTemperatureSetpoint("p_03", degrees)
 }
 
 void setSchedule(String scheduleJson) {
@@ -312,7 +315,38 @@ void setThermostatFanMode(String mode) {
 }
 
 void setThermostatMode(String mode) {
-    rejectReadOnlyThermostatCommand("setThermostatMode(${mode})")
+    if (!mode) {
+        logWarn "Thermostat mode write ignored because mode is blank"
+        return
+    }
+
+    String normalizedMode = mode.toString().toLowerCase()
+    if (normalizedMode == "off") {
+        off()
+        return
+    }
+
+    String value = thermostatModeWriteValue(normalizedMode)
+    if (!value) {
+        logWarn "Unsupported thermostat mode write requested: ${mode}"
+        return
+    }
+
+    // Daikin BRP084C44 firmware ignores mode writes while the unit is off,
+    // so power on first before sending the requested HVAC mode.
+    if (device.currentValue("airConditionerStatus") == "off") {
+        Boolean powerSuccess = sendWriteRequest(indoorStatusPath(), ["e_1002", "e_A002"], "p_01", "01")
+        if (!powerSuccess) {
+            logWarn "Thermostat mode write aborted because power on failed"
+            return
+        }
+        pauseExecution(500)
+    }
+
+    Boolean success = sendWriteRequest(indoorStatusPath(), ["e_1002", "e_3001"], "p_01", value)
+    if (success) {
+        refresh()
+    }
 }
 
 void rejectReadOnlyThermostatCommand(String commandName) {
@@ -353,7 +387,7 @@ void logTrace(String message) {
 }
 
 String driverVersion() {
-    return "0.4.0"
+    return "0.5.1"
 }
 
 String indoorStatusPath() {
@@ -422,6 +456,39 @@ Map modeByCode() {
         "0000": "fan only",
         "0500": "dry"
     ]
+}
+
+Map thermostatModeWriteValues() {
+    return [
+        "heat": "0100",
+        "cool": "0200",
+        "auto": "0300",
+        "fan": "0000",
+        "fan only": "0000",
+        "dry": "0500"
+    ]
+}
+
+String thermostatModeWriteValue(String mode) {
+    return thermostatModeWriteValues().get(mode)
+}
+
+void setTemperatureSetpoint(String parameter, BigDecimal degrees) {
+    if (degrees == null) {
+        logWarn "Temperature setpoint write ignored because value is blank"
+        return
+    }
+
+    String value = encodeSetpointTemperature(degrees)
+    Boolean success = sendWriteRequest(indoorStatusPath(), ["e_1002", "e_3001"], parameter, value)
+    if (success) {
+        refresh()
+    }
+}
+
+String encodeSetpointTemperature(BigDecimal degrees) {
+    Integer encodedValue = (degrees * 2).setScale(0, BigDecimal.ROUND_HALF_UP) as Integer
+    return Integer.toHexString(encodedValue).padLeft(2, "0")
 }
 
 Map fanModeByCode() {
