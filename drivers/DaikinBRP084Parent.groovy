@@ -14,6 +14,8 @@
  * limitations under the License.
  *
  * Version history:
+ * 0.8.1 - Add per-child creation preferences.
+ * 0.8.0 - Add optional child sensor devices mirrored from parent attributes.
  * 0.7.0 - Add native DSIoT swing mode write support.
  * 0.6.0 - Add native DSIoT thermostat fan mode write support.
  * 0.5.1 - Add Switch capability and power on before HVAC mode writes while off.
@@ -106,12 +108,37 @@ metadata {
             type: "bool",
             title: "Log parsed status summary",
             defaultValue: true
+        input name: "createChildDevices",
+            type: "bool",
+            title: "Create Child Devices",
+            defaultValue: false
+        input name: "createIndoorTemperatureChild",
+            type: "bool",
+            title: "Create Indoor Temperature Child",
+            defaultValue: true
+        input name: "createOutdoorTemperatureChild",
+            type: "bool",
+            title: "Create Outdoor Temperature Child",
+            defaultValue: true
+        input name: "createHumidityChild",
+            type: "bool",
+            title: "Create Humidity Child",
+            defaultValue: true
+        input name: "createRuntimeTodayChild",
+            type: "bool",
+            title: "Create Runtime Today Child",
+            defaultValue: false
+        input name: "createEnergyTodayChild",
+            type: "bool",
+            title: "Create Energy Today Child",
+            defaultValue: false
     }
 }
 
 void installed() {
     logInfo "Installed"
     initializeLastManualFanMode()
+    ensureChildDevices()
     sendStaticAttributes()
     initialize()
 }
@@ -120,6 +147,7 @@ void updated() {
     logInfo "Updated"
     unschedule()
     initializeLastManualFanMode()
+    ensureChildDevices()
     if (enableDebugLogging) {
         runIn(1800, "disableDebugLogging")
     }
@@ -193,6 +221,7 @@ void applyParsedStatus(Map parsed) {
     sendNumberEventIfPresent("heatingSetpoint", parsed.heatingSetpoint, "C")
     sendNumberEventIfPresent("energyToday", parsed.energyToday, null)
     sendNumberEventIfPresent("runtimeToday", parsed.runtimeToday, null)
+    updateChildren(parsed)
 
     if (parsed.fanMode) {
         sendEventIfChanged("currentFanMode", parsed.fanMode)
@@ -503,7 +532,7 @@ void logTrace(String message) {
 }
 
 String driverVersion() {
-    return "0.7.0"
+    return "0.8.1"
 }
 
 String indoorStatusPath() {
@@ -516,6 +545,118 @@ String outdoorStatusPath() {
 
 String weekPowerPath() {
     return "/dsiot/edge/adr_0100.i_power.week_power"
+}
+
+Map childSensorDefinitions() {
+    return [
+        "indoor": [
+            label: "Indoor Temperature",
+            driver: "Daikin BRP084 Temperature Child",
+            attribute: "temperature",
+            unit: "C",
+            enabledSetting: "createIndoorTemperatureChild"
+        ],
+        "outdoor": [
+            label: "Outdoor Temperature",
+            driver: "Daikin BRP084 Temperature Child",
+            attribute: "temperature",
+            unit: "C",
+            enabledSetting: "createOutdoorTemperatureChild"
+        ],
+        "humidity": [
+            label: "Humidity",
+            driver: "Daikin BRP084 Humidity Child",
+            attribute: "humidity",
+            unit: "%",
+            enabledSetting: "createHumidityChild"
+        ],
+        "runtime": [
+            label: "Runtime Today",
+            driver: "Daikin BRP084 Measurement Child",
+            attribute: "runtimeToday",
+            unit: null,
+            enabledSetting: "createRuntimeTodayChild"
+        ],
+        "energy": [
+            label: "Energy Today",
+            driver: "Daikin BRP084 Measurement Child",
+            attribute: "energyToday",
+            unit: null,
+            enabledSetting: "createEnergyTodayChild"
+        ]
+    ]
+}
+
+String childDeviceNetworkId(String suffix) {
+    return "${device.deviceNetworkId}-${suffix}"
+}
+
+void ensureChildDevices() {
+    if (!createChildDevices) {
+        return
+    }
+    childSensorDefinitions().each { suffix, childDef ->
+        if (childCreationEnabled(childDef) && !getChildDevice(childDeviceNetworkId(suffix))) {
+            createChildSensor(suffix, childDef)
+        }
+    }
+}
+
+Boolean childCreationEnabled(Map childDef) {
+    return settings.get(childDef.enabledSetting) != false
+}
+
+void createChildSensor(String suffix, Map childDef) {
+    try {
+        String childLabel = "${device.displayName} - ${childDef.label}"
+        addChildDevice("mclass", childDef.driver, childDeviceNetworkId(suffix), [
+            name: childLabel,
+            label: childLabel,
+            isComponent: false
+        ])
+        logInfo "Created child device: ${childLabel}"
+    } catch (Exception e) {
+        logWarn "Unable to create child device."
+        logWarn "Please install the Daikin BRP084 child drivers first."
+        logDebug "Child device creation failed for ${suffix}: ${e.message ?: e.toString()}"
+    }
+}
+
+void updateChildren(Map parsed) {
+    updateChildAttribute("indoor", parsed.currentTemperature)
+    updateChildAttribute("outdoor", parsed.outsideTemperature)
+    updateChildAttribute("humidity", parsed.currentHumidity)
+    updateChildAttribute("runtime", parsed.runtimeToday)
+    updateChildAttribute("energy", parsed.energyToday)
+}
+
+void updateChildAttribute(String suffix, Object value) {
+    if (value == null) {
+        return
+    }
+
+    Map childDef = childSensorDefinitions().get(suffix)
+    if (!childDef) {
+        return
+    }
+
+    def child = getChildDevice(childDeviceNetworkId(suffix))
+    if (!child && createChildDevices && childCreationEnabled(childDef)) {
+        createChildSensor(suffix, childDef)
+        child = getChildDevice(childDeviceNetworkId(suffix))
+    }
+    if (!child) {
+        return
+    }
+
+    Map event = [
+        name: childDef.attribute,
+        value: value
+    ]
+    if (childDef.unit) {
+        event.unit = childDef.unit
+    }
+    child.sendEvent(event)
 }
 
 List supportedThermostatModes() {
