@@ -35,7 +35,7 @@ metadata {
         name: "Daikin BRP084 Parent",
         namespace: "mclass",
         author: "Neil McLaren",
-        importUrl: "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/DaikinBRP084Parent.groovy"
+        importUrl: "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084Parent.groovy"
     ) {
         capability "Initialize"
         capability "Refresh"
