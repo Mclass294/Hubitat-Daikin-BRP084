@@ -1,7 +1,7 @@
 {
   "packages": [
     {
-      "name": "Daikin BRP084 Local Controller",
+      "name": "Daikin BRP084 Local Controller Beta",
       "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/packageManifest.json"
     }
   ]
