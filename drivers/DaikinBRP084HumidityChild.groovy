@@ -22,7 +22,7 @@ metadata {
         name: "Daikin BRP084 Humidity Child",
         namespace: "mclass",
         author: "Neil McLaren",
-        importUrl: "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/DaikinBRP084HumidityChild.groovy"
+        importUrl: "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084HumidityChild.groovy"
     ) {
         capability "Sensor"
         capability "RelativeHumidityMeasurement"
