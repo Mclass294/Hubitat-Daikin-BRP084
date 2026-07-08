@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  * Version history:
+ * 0.9.0 - Release engineering: HPM metadata, import URLs, logging polish and repository preparation.
  * 0.8.1 - Add per-child creation preferences.
  * 0.8.0 - Add optional child sensor devices mirrored from parent attributes.
  * 0.7.0 - Add native DSIoT swing mode write support.
@@ -34,7 +35,7 @@ metadata {
         name: "Daikin BRP084 Parent",
         namespace: "mclass",
         author: "Neil McLaren",
-        importUrl: ""
+        importUrl: "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/DaikinBRP084Parent.groovy"
     ) {
         capability "Initialize"
         capability "Refresh"
@@ -532,7 +533,7 @@ void logTrace(String message) {
 }
 
 String driverVersion() {
-    return "0.8.1"
+    return "0.9.0"
 }
 
 String indoorStatusPath() {
@@ -916,8 +917,7 @@ Boolean sendWriteRequest(String target, List path, String parameter, String valu
     ]
 
     logDebug "Sending Daikin BRP084 write to ${ipAddress}: target=${target}, parameter=${parameter}, value=${value}"
-    logDebug "Write request JSON: ${JsonOutput.toJson(requestBody)}"
-    logTrace "Write request pretty JSON: ${JsonOutput.prettyPrint(JsonOutput.toJson(requestBody))}"
+    logTrace "Write request JSON: ${JsonOutput.prettyPrint(JsonOutput.toJson(requestBody))}"
 
     try {
         Boolean success = false
@@ -925,8 +925,7 @@ Boolean sendWriteRequest(String target, List path, String parameter, String valu
             Integer status = response?.status as Integer
             sendEventIfChanged("lastResponseCode", status)
             logDebug "Write HTTP status: ${status}"
-            logDebug "Write response JSON: ${JsonOutput.toJson(response.data)}"
-            logTrace "Write response pretty JSON: ${JsonOutput.prettyPrint(JsonOutput.toJson(response.data))}"
+            logTrace "Write response JSON: ${JsonOutput.prettyPrint(JsonOutput.toJson(response.data))}"
 
             if (status != 200) {
                 logWarn "Daikin BRP084 write failed: HTTP ${status}"

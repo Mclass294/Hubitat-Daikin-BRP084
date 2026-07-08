@@ -12,6 +12,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Version history:
+ * 0.9.0 - Release engineering: import URL and public beta package metadata.
  */
 
 metadata {
@@ -19,7 +22,7 @@ metadata {
         name: "Daikin BRP084 Measurement Child",
         namespace: "mclass",
         author: "Neil McLaren",
-        importUrl: ""
+        importUrl: "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/DaikinBRP084MeasurementChild.groovy"
     ) {
         capability "Sensor"
 
