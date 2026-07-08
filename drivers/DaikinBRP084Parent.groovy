@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  * Version history:
+ * 0.7.0 - Add native DSIoT swing mode write support.
  * 0.6.0 - Add native DSIoT thermostat fan mode write support.
  * 0.5.1 - Add Switch capability and power on before HVAC mode writes while off.
  * 0.5.0 - Add native DSIoT thermostat mode and heat/cool setpoint write support.
@@ -63,6 +64,17 @@ metadata {
                 constraints: ["Auto", "Quiet", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5"]
             ]
         ]
+        command "setSwingMode", [
+            [
+                name: "Swing Mode",
+                type: "ENUM",
+                constraints: ["off", "vertical", "horizontal", "both"]
+            ]
+        ]
+        command "swingOff"
+        command "swingVertical"
+        command "swingHorizontal"
+        command "swingBoth"
     }
 
     preferences {
@@ -361,6 +373,57 @@ void setDaikinFanMode(String mode) {
     setThermostatFanMode(mode)
 }
 
+void setSwingMode(String mode) {
+    if (!mode) {
+        logWarn "Swing mode write ignored because mode is blank"
+        return
+    }
+
+    String swingMode = mode.toString().toLowerCase()
+    Map swingValues = swingWriteValues().get(swingMode)
+    if (!swingValues) {
+        logWarn "Unsupported swing mode write requested: ${mode}"
+        return
+    }
+
+    String hvacMode = device.currentValue("daikinMode") as String
+    List attrs = swingAttrsByMode().get(hvacMode)
+    if (!attrs) {
+        logWarn "Swing mode cannot be changed while HVAC mode is ${hvacMode ?: "unknown"}."
+        return
+    }
+
+    Boolean verticalSuccess = sendWriteRequest(indoorStatusPath(), ["e_1002", "e_3001"], attrs.get(0), swingValues.get("vertical"))
+    if (!verticalSuccess) {
+        logWarn "Swing mode write aborted because vertical swing write failed"
+        return
+    }
+
+    Boolean horizontalSuccess = sendWriteRequest(indoorStatusPath(), ["e_1002", "e_3001"], attrs.get(1), swingValues.get("horizontal"))
+    if (!horizontalSuccess) {
+        logWarn "Swing mode write aborted because horizontal swing write failed"
+        return
+    }
+
+    refresh()
+}
+
+void swingOff() {
+    setSwingMode("off")
+}
+
+void swingVertical() {
+    setSwingMode("vertical")
+}
+
+void swingHorizontal() {
+    setSwingMode("horizontal")
+}
+
+void swingBoth() {
+    setSwingMode("both")
+}
+
 void setThermostatMode(String mode) {
     if (!mode) {
         logWarn "Thermostat mode write ignored because mode is blank"
@@ -440,7 +503,7 @@ void logTrace(String message) {
 }
 
 String driverVersion() {
-    return "0.6.0"
+    return "0.7.0"
 }
 
 String indoorStatusPath() {
@@ -531,6 +594,27 @@ Map thermostatFanModeWriteValues() {
         "level3": "0500",
         "level4": "0600",
         "level5": "0700"
+    ]
+}
+
+Map swingWriteValues() {
+    return [
+        "off": [
+            vertical: "000000",
+            horizontal: "000000"
+        ],
+        "vertical": [
+            vertical: "0F0000",
+            horizontal: "000000"
+        ],
+        "horizontal": [
+            vertical: "000000",
+            horizontal: "0F0000"
+        ],
+        "both": [
+            vertical: "0F0000",
+            horizontal: "0F0000"
+        ]
     ]
 }
 
