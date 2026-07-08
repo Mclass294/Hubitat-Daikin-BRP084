@@ -1,38 +1,40 @@
 {
   "packageName": "Daikin BRP084 Local Controller",
-  "author": "Neil McLaren",
+  "author": "mclass",
   "version": "0.9.0",
+  "minimumHEVersion": "2.3.0",
   "dateReleased": "2026-07-08",
   "releaseNotes": "Public beta release preparation with HPM metadata, import URLs, logging polish and documentation.",
-  "minimumHEVersion": "2.3.0",
+  "documentationLink": "https://github.com/Mclass294/Hubitat-Daikin-BRP084/blob/main/README.md",
+  "licenseFile": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/LICENSE",
   "apps": [],
   "drivers": [
     {
       "id": "mclass.daikin.brp084.parent",
       "name": "Daikin BRP084 Parent",
       "namespace": "mclass",
-      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/DaikinBRP084Parent.groovy",
+      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084Parent.groovy",
       "required": true
     },
     {
-      "id": "f9833d1b-58c1-4e41-8d0f-6e9fc3f10fd6",
+      "id": "mclass.daikin.brp084.temperature",
       "name": "Daikin BRP084 Temperature Child",
       "namespace": "mclass",
-      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/DaikinBRP084TemperatureChild.groovy",
+      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084TemperatureChild.groovy",
       "required": true
     },
     {
-      "id": "2ef0fd9a-1d2e-4f85-95f7-b005fce6b31c",
+      "id": "mclass.daikin.brp084.humidity",
       "name": "Daikin BRP084 Humidity Child",
       "namespace": "mclass",
-      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/DaikinBRP084HumidityChild.groovy",
+      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084HumidityChild.groovy",
       "required": true
     },
     {
-      "id": "e8c6df91-2321-4e51-b119-14b66494a123",
+      "id": "mclass.daikin.brp084.measurement",
       "name": "Daikin BRP084 Measurement Child",
       "namespace": "mclass",
-      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/DaikinBRP084MeasurementChild.groovy",
+      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084MeasurementChild.groovy",
       "required": true
     }
   ]
