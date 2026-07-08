@@ -22,7 +22,7 @@ metadata {
         name: "Daikin BRP084 Temperature Child",
         namespace: "mclass",
         author: "Neil McLaren",
-        importUrl: "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/DaikinBRP084TemperatureChild.groovy"
+        importUrl: "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084TemperatureChild.groovy"
     ) {
         capability "Sensor"
         capability "TemperatureMeasurement"
