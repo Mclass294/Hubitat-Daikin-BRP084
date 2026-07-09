@@ -1,6 +1,6 @@
 # Daikin BRP084 Local Controller
 
-Local Hubitat driver package for Daikin BRP084 DSIoT adapters. The parent driver communicates directly with the adapter on your LAN using the local DSIoT API; no Daikin cloud, Home Assistant runtime or SmartThings runtime is required.
+The Daikin BRP084 Local Controller provides native local control of Daikin air conditioners equipped with the BRP084 Wi-Fi adapter using the DSIoT protocol. No cloud services, Home Assistant or third-party integrations are required.
 
 ## Supported Hardware
 
