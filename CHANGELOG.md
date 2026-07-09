@@ -1,5 +1,35 @@
 # Changelog
 
+## v1.0.0
+
+# Added
+  - Initial public release
+  - Native DSIoT local communications
+  - Power control
+  - HVAC mode control
+  - Heating setpoint
+  - Cooling setpoint
+  - Fan mode
+  - Swing mode
+  - Indoor temperature
+  - Outdoor temperature
+  - Humidity
+  - Runtime Today
+  - Energy Today
+  - Optional child devices
+  - Automatic refresh after write
+  - Hubitat Package Manager support
+# Tested
+  Validated using:
+  - Daikin Alira X FTXM71WVMA
+  - BRP084C44
+  - Firmware 3.12.3
+  - Hubitat C8
+# Notes
+  Hubitat Package Manager's Install from URL expects a packageManifest.json URL.
+
+  Attempting to install repository.json directly will display "Install null" because a repository definition is not itself a package manifest.
+
 ## v0.9.0
 - Prepared public beta release metadata, import URLs, HPM package files and documentation.
 - Moved raw protocol payload logging to trace while keeping concise debug diagnostics.
