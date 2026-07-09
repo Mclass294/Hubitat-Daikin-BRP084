@@ -1,8 +1,12 @@
 {
+  "author": "mclass",
+  "gitHubUrl": "https://github.com/Mclass294",
   "packages": [
     {
       "name": "Daikin BRP084 Local Controller",
-      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/packageManifest.json"
+      "category": "Integrations",
+      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/packageManifest.json",
+      "description": "Local Hubitat driver for Daikin BRP084 DSIoT Wi-Fi adapters."
     }
   ]
 }
