@@ -13,6 +13,14 @@ The Daikin BRP084 Local Controller provides native local control of Daikin air c
 - Adapter: BRP084C44
 - Firmware: 3.12.3
 
+## CAUTION: Firmware Updates
+
+This driver has been developed and validated using the BRP084C44 Wi-Fi adapter running firmware 3.12.3.
+
+The local DSIoT protocol is undocumented and may change in future firmware releases. If your system is operating correctly with this driver, it is recommended that automatic firmware updates for the Wi-Fi adapter be disabled to avoid unexpected compatibility changes.
+
+If you choose to update the adapter firmware, please be aware that compatibility with this driver cannot be guaranteed until the new firmware has been tested by the community.
+
 ## Features
 
 - Local DSIoT read/write over HTTP.
