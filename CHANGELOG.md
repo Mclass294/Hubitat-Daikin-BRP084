@@ -25,6 +25,10 @@
   - BRP084C44
   - Firmware 3.12.3
   - Hubitat C8
+# Packaging
+
+ Corrected a JSON formatting issue in packageManifest.json following the initial  publication of v1.0.0. This affected HPM package validation only and did not affect the driver code or functionality.
+
 # Notes
   Hubitat Package Manager's Install from URL expects a packageManifest.json URL.
 
