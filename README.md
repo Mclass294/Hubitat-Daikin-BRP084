@@ -11,7 +11,7 @@ The Daikin BRP084 Local Controller provides native local control of Daikin air c
 
 - Daikin FTXM71WVMA Alira X
 - Adapter: BRP084C44
-- Firmware: 3.12.3
+- Adapter firmware: 3.12.3 (see caution note)
 
 ## CAUTION: Firmware Updates
 
