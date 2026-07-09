@@ -534,7 +534,7 @@ void logTrace(String message) {
 }
 
 String driverVersion() {
-    return "0.9.0"
+    return "1.0.0"
 }
 
 String indoorStatusPath() {
