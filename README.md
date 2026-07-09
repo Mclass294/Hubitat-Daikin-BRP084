@@ -118,4 +118,4 @@ Disabling a child preference does not delete existing child devices. Existing ch
 
 ## Acknowledgements
 
-The Home Assistant local Daikin work was used only as a protocol reference. This package is a native Hubitat implementation and does not require Home Assistant at runtime.
+This project builds upon the knowledge shared by the Home Assistant community and various Daikin integration projects in understanding the Daikin DSIoT protocol. Their collective work helped inform the development of this native Hubitat implementation.
