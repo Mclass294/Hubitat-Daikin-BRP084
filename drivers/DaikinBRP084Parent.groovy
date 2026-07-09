@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  * Version history:
+ * 1.0.0 - First public release
  * 0.9.0 - Release engineering: HPM metadata, import URLs, logging polish and repository preparation.
  * 0.8.1 - Add per-child creation preferences.
  * 0.8.0 - Add optional child sensor devices mirrored from parent attributes.
