@@ -89,32 +89,24 @@ Disabling a child preference does not delete existing child devices. Existing ch
 
 ## Version History
 
-1.0.0
-First public release.
-
-0.9.0
-Release engineering and HPM packaging.
-
-0.8.1
-Selectable child creation.
-
-0.8.0
-Child device support.
-
-0.7.0
-Swing control.
-
-0.6.0
-Fan control.
-
-0.5.1
-HVAC mode refinement.
-
-0.5.0
-Heating and cooling setpoints.
-
-0.4.0
-Power control.
+- 1.0.0
+  First public release.
+- 0.9.0
+  Release engineering and HPM packaging.
+- 0.8.1
+  Selectable child creation.
+- 0.8.0
+  Child device support.
+- 0.7.0
+  Swing control.
+- 0.6.0
+  Fan control.
+- 0.5.1
+  HVAC mode refinement.
+- 0.5.0
+  Heating and cooling setpoints.
+- 0.4.0
+  Power control.
 
 ## Acknowledgements
 
