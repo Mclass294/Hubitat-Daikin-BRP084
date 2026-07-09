@@ -1,10 +1,10 @@
 {
   "packageName": "Daikin BRP084 Local Controller",
   "author": "mclass",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "minimumHEVersion": "2.3.0",
-  "dateReleased": "2026-07-08",
-  "releaseNotes": "HPM beta release.",
+  "dateReleased": "2026-07-09",
+  "releaseNotes": ""releaseNotes": "First public release. Full local control of Daikin BRP084 Wi-Fi adapters with HPM support."",
   "documentationLink": "https://github.com/Mclass294/Hubitat-Daikin-BRP084/blob/main/README.md",
   "licenseFile": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/LICENSE",
   "apps": [],
