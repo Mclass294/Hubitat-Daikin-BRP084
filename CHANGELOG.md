@@ -50,6 +50,10 @@
 
   Attempting to install repository.json directly will display "Install null" because a repository definition is not itself a package manifest.
 
+## v1.0.1
+- Note that an existing Energy Today child must be deleted and recreated to gain the new EnergyMeter capability.
+- Any affected Rule Machine triggers may need to be deleted and recreated.
+
 ## v0.9.0
 - Prepared public beta release metadata, import URLs, HPM package files and documentation.
 - Moved raw protocol payload logging to trace while keeping concise debug diagnostics.
