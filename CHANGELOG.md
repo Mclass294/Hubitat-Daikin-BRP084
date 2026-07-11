@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.0.1
+
+# Changed
+  - Normalized numeric parent and child events so Rule Machine receives numeric values, not strings containing units.
+  - Added one-shot upgrade repair for existing parent numeric states that may have been stored as strings.
+  - Added units to numeric events as event metadata only.
+  - Added a dedicated Energy Child with EnergyMeter metadata and standard `energy` event mirroring for Energy Today as a compatibility-driven child-driver change.
+  - Added a warning when an existing Energy Today child still uses the v1.0.0 Measurement Child driver and must be manually recreated for EnergyMeter/Home Page Charts support.
+  - Kept Runtime Today as a custom numeric `runtimeToday` measurement because Hubitat does not provide a dedicated runtime-today capability.
+  - Replaced driver version reporting with a single `DRIVER_VERSION` constant.
+  - Improved logging for communication failures, invalid JSON responses and unexpected DSIoT response shapes.
+
+# Compatibility
+  - No DSIoT request paths, write payloads, polling behavior, refresh behavior or thermostat commands were changed.
+  - The optional child mirror pattern remains unchanged.
+
 ## v1.0.0
 
 # Added

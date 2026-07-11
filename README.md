@@ -53,6 +53,7 @@ Install these drivers in Hubitat **Drivers Code**:
 2. `DaikinBRP084TemperatureChild.groovy`
 3. `DaikinBRP084HumidityChild.groovy`
 4. `DaikinBRP084MeasurementChild.groovy`
+5. `DaikinBRP084EnergyChild.groovy`
 
 Then create a virtual device using driver type **Daikin BRP084 Parent**.
 
@@ -79,6 +80,19 @@ Enable **Create Child Devices** to allow child creation, then choose individual 
 
 Disabling a child preference does not delete existing child devices. Existing children remain user-managed.
 
+### Energy Today Child Upgrade from v1.0.0
+
+Version 1.0.1 adds a dedicated `Daikin BRP084 Energy Child` so Energy Today can expose Hubitat's standard `EnergyMeter` capability for Home Page Charts where supported.
+
+If an Energy Today child was created by v1.0.0, it uses `Daikin BRP084 Measurement Child`. The parent will not automatically delete or replace that device. To migrate it:
+
+1. Disable **Create Energy Today Child**.
+2. Delete the existing Energy Today child.
+3. Confirm that `DaikinBRP084EnergyChild.groovy` is installed.
+4. Re-enable **Create Energy Today Child**.
+5. Save Preferences or run **Initialize**.
+6. Refresh the parent and confirm both `energy` and `energyToday` appear on the Energy Today child.
+
 ## Known Limitations
 
 - Only BRP084C44 firmware 3.12.3 has been hardware-tested.
@@ -97,6 +111,8 @@ Disabling a child preference does not delete existing child devices. Existing ch
 
 ## Version History
 
+- 1.0.1
+  Maintenance release for numeric attribute compatibility and chart metadata.
 - 1.0.0
   First public release.
 - 0.9.0

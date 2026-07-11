@@ -1,10 +1,10 @@
 {
   "packageName": "Daikin BRP084 Local Controller",
   "author": "mclass",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minimumHEVersion": "2.3.0",
-  "dateReleased": "2026-07-09",
-  "releaseNotes": "First public release. Full local control of Daikin BRP084 Wi-Fi adapters with HPM support.",
+  "dateReleased": "2026-07-11",
+  "releaseNotes": "Maintenance release: numeric attribute compatibility, Home Page Charts metadata and logging polish.",
   "documentationLink": "https://github.com/Mclass294/Hubitat-Daikin-BRP084/blob/main/README.md",
   "licenseFile": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/LICENSE",
   "apps": [],
@@ -35,6 +35,13 @@
       "name": "Daikin BRP084 Measurement Child",
       "namespace": "mclass",
       "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084MeasurementChild.groovy",
+      "required": true
+    },
+    {
+      "id": "mclass.daikin.brp084.energy",
+      "name": "Daikin BRP084 Energy Child",
+      "namespace": "mclass",
+      "location": "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084EnergyChild.groovy",
       "required": true
     }
   ]
