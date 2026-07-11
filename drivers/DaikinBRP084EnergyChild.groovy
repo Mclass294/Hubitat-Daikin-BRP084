@@ -14,19 +14,20 @@
  * limitations under the License.
  *
  * Version history:
- * 1.0.1 - Maintenance release: attribute compatibility audit.
- * 1.0.0 - First public release
- * 0.9.0 - Release engineering: import URL and public beta package metadata.
+ * 1.0.1 - Add EnergyMeter child for Home Page Charts compatibility.
  */
 
 metadata {
     definition(
-        name: "Daikin BRP084 Temperature Child",
+        name: "Daikin BRP084 Energy Child",
         namespace: "mclass",
         author: "Neil McLaren",
-        importUrl: "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084TemperatureChild.groovy"
+        importUrl: "https://raw.githubusercontent.com/Mclass294/Hubitat-Daikin-BRP084/main/drivers/DaikinBRP084EnergyChild.groovy"
     ) {
         capability "Sensor"
-        capability "TemperatureMeasurement"
+        capability "EnergyMeter"
+
+        attribute "energy", "number"
+        attribute "energyToday", "number"
     }
 }

@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  * Version history:
+ * 1.0.1 - Maintenance release: runtime measurement compatibility audit.
  * 1.0.0 - First public release
  * 0.9.0 - Release engineering: import URL and public beta package metadata.
  */
